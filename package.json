@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --fix",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
