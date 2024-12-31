@@ -21,6 +21,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Fetch all branches
+        run: |
+          git fetch --all
+          git fetch origin main:main
 
       - name: Create or Update PR
         env:
@@ -31,12 +38,6 @@ jobs:
           CURRENT_BRANCH=$(echo $GITHUB_REF | sed 's|refs/heads/||')
           echo "현재 브랜치: $CURRENT_BRANCH"
 
-          # 기존 PR이 있는지 확인
-          EXISTING_PR=$(gh pr list --head "$CURRENT_BRANCH" --json number -q ".[0].number")
-
-          # PR 템플릿 경로 설정
-          PR_TEMPLATE_PATH=".github/pull_request_template.md"
-
           # PR Base 브랜치 설정
           if [[ "$CURRENT_BRANCH" == develop ]]; then
             BASE_BRANCH="main"
@@ -44,12 +45,32 @@ jobs:
             BASE_BRANCH="develop"
           fi
 
-          # PR 템플릿 적용 여부 설정
+          # Base 브랜치 존재 여부 확인
+          if ! git show-ref --verify --quiet "refs/remotes/origin/$BASE_BRANCH"; then
+            echo "Base 브랜치 '$BASE_BRANCH'가 존재하지 않습니다."
+            exit 1
+          fi
+
+          echo "현재 브랜치 커밋: $(git rev-parse "$CURRENT_BRANCH")"
+          echo "베이스 브랜치 커밋: $(git rev-parse "origin/$BASE_BRANCH")"
+          DIFF_COUNT=$(git rev-list --count "$CURRENT_BRANCH"..."origin/$BASE_BRANCH")
+          echo "브랜치 간 커밋 차이 개수: $DIFF_COUNT"
+
+          if [ "$DIFF_COUNT" -eq 0 ]; then
+            echo "현재 브랜치와 $BASE_BRANCH 브랜치 간에 커밋 차이가 없습니다. PR을 생성하지 않습니다."
+            exit 0
+          fi
+
+          # PR 템플릿 경로 설정
+          PR_TEMPLATE_PATH=".github/pull_request_template.md"
           if [[ "$CURRENT_BRANCH" == docs/* || "$CURRENT_BRANCH" == chore/* ]]; then
             PR_BODY="> 변경 사항에 대해 간단히 서술해 주세요."
           else
-            PR_BODY=$(cat "$PR_TEMPLATE_PATH")  
+            PR_BODY=$(cat "$PR_TEMPLATE_PATH")
           fi
+
+          # 기존 PR이 있는지 확인
+          EXISTING_PR=$(gh pr list --head "$CURRENT_BRANCH" --json number -q ".[0].number")
 
           if [ -z "$EXISTING_PR" ]; then
             echo "해당 브랜치에 대한 Pull Request가 없어요. 새로 생성합니다."
