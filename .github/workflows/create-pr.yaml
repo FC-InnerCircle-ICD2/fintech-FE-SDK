@@ -53,14 +53,11 @@ jobs:
 
           if [ -z "$EXISTING_PR" ]; then
             echo "해당 브랜치에 대한 Pull Request가 없어요. 새로 생성합니다."
-            PR_NUMBER=$(gh pr create \
+            gh pr create \
               --title "$CURRENT_BRANCH" \
               --body "$PR_BODY" \
-              --base "$BASE_BRANCH" \
-              --head "$CURRENT_BRANCH" \
-              --json number -q ".number")
-            
-            gh pr edit "$PR_NUMBER" --add-assignee "$PUSH_AUTHOR"
+              --assignee "$PUSH_AUTHOR" \
+              --base "$BASE_BRANCH"
           else
             echo "이미 해당 브랜치에 대한 Pull Request가 있어요. 업데이트합니다."
             gh pr comment "$EXISTING_PR" --body "Branch updated with new changes."
