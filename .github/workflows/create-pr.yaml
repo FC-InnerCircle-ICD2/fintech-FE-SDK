@@ -4,7 +4,7 @@ on:
   push:
     branches:
       [
-        develop,
+        dev,
         feature/*,
         release/*,
         bugfix/*,
@@ -39,10 +39,10 @@ jobs:
           echo "현재 브랜치: $CURRENT_BRANCH"
 
           # PR Base 브랜치 설정
-          if [[ "$CURRENT_BRANCH" == develop ]]; then
+          if [[ "$CURRENT_BRANCH" == dev ]]; then
             BASE_BRANCH="main"
           else
-            BASE_BRANCH="develop"
+            BASE_BRANCH="dev"
           fi
 
           # Base 브랜치 존재 여부 확인
@@ -68,6 +68,9 @@ jobs:
           else
             PR_BODY=$(cat "$PR_TEMPLATE_PATH")
           fi
+
+          # Push한 사람을 본문에 추가
+          PR_BODY+="\n\n**PR 생성자:** @$PUSH_AUTHOR"
 
           # 기존 PR이 있는지 확인
           EXISTING_PR=$(gh pr list --head "$CURRENT_BRANCH" --json number -q ".[0].number")
