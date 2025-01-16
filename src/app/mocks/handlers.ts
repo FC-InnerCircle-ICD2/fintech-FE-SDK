@@ -46,4 +46,46 @@ export const handlers = [
     //   { status: 400 },
     // );
   }),
+
+  // connect payment events api
+  http.get(API_ENDPOINTS.LISTEN_PAYMENT_EVENTS(':token'), ({ params }) => {
+    const { token } = params;
+
+    console.log('👀 token', token);
+
+    // create Stream
+    const stream = new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+
+        controller.enqueue(
+          encoder.encode(
+            `event: paymentStatus\ndata: ${JSON.stringify({
+              type: 'paymentStatus',
+              data: 'Payment processing...',
+            })}\n\n`,
+          ),
+        );
+
+        setTimeout(() => {
+          controller.enqueue(
+            encoder.encode(
+              `event: paymentStatus\ndata: ${JSON.stringify({
+                type: 'paymentStatus',
+                data: 'Payment completed!',
+              })}\n\n`,
+            ),
+          );
+
+          controller.close();
+        }, 10000);
+      },
+    });
+
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+      },
+    });
+  }),
 ];
