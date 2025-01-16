@@ -28,5 +28,10 @@
   },
   "dependencies": {
     "ky": "^1.7.4"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
