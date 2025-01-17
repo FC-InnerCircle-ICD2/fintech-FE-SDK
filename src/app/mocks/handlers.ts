@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { API_ENDPOINTS } from '../../shared/config/api-endpoints';
+import { DUMMY_API_CONFIG } from '../../shared/config/dummy';
 
 export const handlers = [
   // request payment api
@@ -25,7 +26,7 @@ export const handlers = [
       {
         code: 200,
         data: {
-          orderToken: 'HWgwrj5nn0WFyFGtSoANf/LAt3/goF6TNqGjrVeVEsc=',
+          orderToken: DUMMY_API_CONFIG.ORDER_TOKEN,
           expiredAt: new Date(Date.now() + 60 * 3 * 1000).toISOString(),
         },
         error: null,
@@ -53,32 +54,66 @@ export const handlers = [
 
     console.log('👀 token', token);
 
-    // create Stream
     const stream = new ReadableStream({
       start(controller) {
         const encoder = new TextEncoder();
 
+        if (token !== DUMMY_API_CONFIG.ORDER_TOKEN) {
+          controller.enqueue(
+            encoder.encode(
+              `event: ${DUMMY_API_CONFIG.PAYMENT_EVENTS.RESULT}\ndata: ${JSON.stringify(
+                {
+                  type: DUMMY_API_CONFIG.PAYMENT_EVENTS.DATA.RESULT.FAILURE,
+                  data: 'Unauthorized',
+                },
+              )}\n\n`,
+            ),
+          );
+
+          return;
+        }
+
+        // send event when payment method is ready
         controller.enqueue(
           encoder.encode(
-            `event: paymentStatus\ndata: ${JSON.stringify({
-              type: 'paymentStatus',
-              data: 'Payment processing...',
-            })}\n\n`,
+            `event: ${DUMMY_API_CONFIG.PAYMENT_EVENTS.METHOD}\ndata: ${JSON.stringify(
+              {
+                type: DUMMY_API_CONFIG.PAYMENT_EVENTS.METHOD,
+                data: DUMMY_API_CONFIG.PAYMENT_EVENTS.DATA.METHOD,
+              },
+            )}\n\n`,
           ),
         );
 
+        // send event when payment succeed
         setTimeout(() => {
           controller.enqueue(
             encoder.encode(
-              `event: paymentStatus\ndata: ${JSON.stringify({
-                type: 'paymentStatus',
-                data: 'Payment completed!',
-              })}\n\n`,
+              `event: ${DUMMY_API_CONFIG.PAYMENT_EVENTS.RESULT}\ndata: ${JSON.stringify(
+                {
+                  type: DUMMY_API_CONFIG.PAYMENT_EVENTS.DATA.RESULT.SUCCESS,
+                  data: 'Completed',
+                },
+              )}\n\n`,
             ),
           );
 
           controller.close();
-        }, 10000);
+        }, 5000);
+
+        // send event when payment failed
+        // setTimeout(() => {
+        //   controller.enqueue(
+        //     encoder.encode(
+        //       `event: ${DUMMY_API_CONFIG.PAYMENT_EVENTS.RESULT}\ndata: ${JSON.stringify(
+        //         {
+        //           type: DUMMY_API_CONFIG.PAYMENT_EVENTS.DATA.RESULT.FAILURE,
+        //           data: 'Failed',
+        //         },
+        //       )}\n\n`,
+        //     ),
+        //   );
+        // }, 5000);
       },
     });
 
