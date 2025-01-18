@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/api-endpoint';
 import { handleError } from '../error/handle-error';
 
 export type Response<S> = {
-  code: string;
+  code: number;
   data: S;
   message?: string;
 };
