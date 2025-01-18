@@ -1,20 +1,19 @@
 import { type HttpClient } from '../../shared/api/http-client';
 
-export type TOrder = {
-  orderId: string;
+export type Order = {
+  id: string;
   amount: number;
-  currency: string;
-  productName: string;
+  orderName: string;
 };
 
-export type TRedirectURL = {
+export type RedirectURL = {
   successUrl: string;
   failUrl: string;
 };
 
 export type PaymentApi = {
   requestPayment: (
-    body: TOrder & TRedirectURL,
+    body: Order & RedirectURL,
   ) => Promise<{ token: string; expiredAt: string }>;
   subscribePaymentEvents: (token: string) => EventSource;
 };
@@ -23,7 +22,7 @@ export const createPaymentApi = (httpClient: HttpClient): PaymentApi => {
   return {
     requestPayment: async (body) => {
       const response = await httpClient.post<
-        TOrder & TRedirectURL,
+        Order & RedirectURL,
         { token: string; expiredAt: string }
       >('/api/v1/payments', body);
 
