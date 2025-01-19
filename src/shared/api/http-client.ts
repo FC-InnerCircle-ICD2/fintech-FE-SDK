@@ -1,5 +1,5 @@
 import ky, { type Options } from 'ky';
-import { API_BASE_URL } from '../config/api-endpoint';
+import { API_BASE_URL } from '../config/api-endpoints';
 import { handleError } from '../error/handle-error';
 
 export type Response<S> = {
