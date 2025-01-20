@@ -1,52 +1,53 @@
 import { http, HttpResponse } from 'msw';
-import { API_ENDPOINTS } from '../../shared/config/api-endpoints';
+import { API_ENDPOINTS } from '../../shared/config/apiEndpoints';
 import { DUMMY_API_CONFIG } from '../../shared/config/dummy';
+import type { Response } from '../../shared/api/httpClient';
+import type { PaymentReq, PaymentRes } from '../../entities/payment/types';
 
 export const handlers = [
   // request payment api
-  http.post<
-    object,
-    { orderId: string; amount: number; successURL: string },
-    {
-      code: number;
-      data: { orderToken: string; expiredAt: string } | null;
-      error: { code: number; message: string } | null;
-    }
-  >(API_ENDPOINTS.REQUEST_PAYMENT, async ({ request }) => {
-    const { orderId, amount, successURL } = await request.json();
+  http.post<object, PaymentReq, Response<PaymentRes>>(
+    API_ENDPOINTS.REQUEST_PAYMENT,
+    async ({ request }) => {
+      const { id, amount, orderName, successUrl, failureUrl } =
+        await request.json();
 
-    console.log('👀 request body', {
-      orderId,
-      amount,
-      successURL,
-    });
+      console.log(
+        '👀 [handlers.ts] Request Body',
+        id,
+        amount,
+        orderName,
+        successUrl,
+        failureUrl,
+      );
 
-    // response when request succeed
-    return HttpResponse.json(
-      {
-        code: 200,
-        data: {
-          orderToken: DUMMY_API_CONFIG.ORDER_TOKEN,
-          expiredAt: new Date(Date.now() + 60 * 3 * 1000).toISOString(),
+      // response when request succeed
+      return HttpResponse.json(
+        {
+          code: 200,
+          data: {
+            token: DUMMY_API_CONFIG.ORDER_TOKEN,
+            expiredAt: new Date(Date.now() + 60 * 3 * 1000).toISOString(),
+          },
+          error: null,
         },
-        error: null,
-      },
-      { status: 200 },
-    );
+        { status: 200 },
+      );
 
-    // // response when request failed
-    // return HttpResponse.json(
-    //   {
-    //     code: 400,
-    //     data: null,
-    //     error: {
-    //       code: 400,
-    //       message: 'Invalid request body',
-    //     },
-    //   },
-    //   { status: 400 },
-    // );
-  }),
+      // // response when request failed
+      // return HttpResponse.json(
+      //   {
+      //     code: 400,
+      //     data: null,
+      //     error: {
+      //       code: 400,
+      //       message: 'Invalid request body',
+      //     },
+      //   },
+      //   { status: 400 },
+      // );
+    },
+  ),
 
   // connect payment events api
   http.get(API_ENDPOINTS.LISTEN_PAYMENT_EVENTS(':token'), ({ params }) => {
