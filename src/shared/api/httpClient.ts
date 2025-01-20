@@ -1,11 +1,11 @@
 import ky, { type Options } from 'ky';
-import { API_BASE_URL } from '../config/api-endpoints';
+import { API_BASE_URL } from '../config/apiEndpoints';
 import { handleError } from '../error/handle-error';
 
 export type Response<S> = {
   code: number;
-  data: S;
-  message?: string;
+  data: S | null;
+  error: { code: number; message: string } | null;
 };
 
 export type HttpClient = {
@@ -30,7 +30,7 @@ export const createHttpClient = (options?: Options): HttpClient => {
   };
 
   const httpClient = ky.create({
-    prefixUrl: options?.prefixUrl ?? API_BASE_URL,
+    prefixUrl: kyOptions?.prefixUrl ?? API_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
       ...kyOptions.headers,
