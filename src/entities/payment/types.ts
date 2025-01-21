@@ -16,5 +16,5 @@ export type PaymentRes = { token: string; expiredAt: string };
 
 export type PaymentApi = {
   requestPayment: (body: PaymentReq) => Promise<Response<PaymentRes>>;
-  subscribePaymentEvents: (token: string) => EventSource;
+  subscribePaymentEvents: (token: string, queryString?: string) => EventSource;
 };
