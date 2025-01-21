@@ -17,9 +17,9 @@ export const createPaymentApi = (httpClient: HttpClient): PaymentApi => {
       }
     },
 
-    subscribePaymentEvents: (token: string): EventSource => {
+    subscribePaymentEvents: (token: string, queryString = ''): EventSource => {
       const eventSource = new EventSource(
-        API_ENDPOINTS.SUBSCRIBE_PAYMENT_EVENTS(token),
+        API_ENDPOINTS.SUBSCRIBE_PAYMENT_EVENTS(token) + queryString,
         {
           withCredentials: true,
         },
