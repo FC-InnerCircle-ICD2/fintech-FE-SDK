@@ -4,21 +4,22 @@ import type { Response } from '../../shared/api/httpClient';
 import { API_ENDPOINTS } from '../../shared/config/apiEndpoints';
 import { DUMMY_API_CONFIG } from '../../shared/config/dummy';
 
-export type EventName = 'method-verification' | 'payment-approval';
+export type EventName = 'payments' | 'method-verification' | 'payment-approval';
 
 export const SCENARIOS = {
   SUCCESS: { code: 200, message: 'success' },
   ERROR: {
+    SERVER: { code: 500, message: 'internal_server_error' },
     TOKEN: { code: 401, message: 'unauthorized_token' },
-    PAYMENT_METHOD: {
-      PLAIN: { code: 500, message: 'payment_method_error' },
-      INVALID: { code: 400, message: 'invalid_payment_method' },
-    },
-    PAYMENT: {
-      PLAIN: { code: 500, message: 'payment_approval_error' },
-      INVALID: { code: 400, message: 'invalid_order_info' },
-      REJECT: { code: 403, message: 'reject_payment_approval' },
-    },
+    // PAYMENT_METHOD: {
+    //   PLAIN: { code: 500, message: 'payment_method_error' },
+    //   INVALID: { code: 400, message: 'invalid_payment_method' },
+    // },
+    // PAYMENT: {
+    //   PLAIN: { code: 500, message: 'payment_approval_error' },
+    //   INVALID: { code: 400, message: 'invalid_order_info' },
+    //   REJECT: { code: 403, message: 'reject_payment_approval' },
+    // },
   },
 } as const;
 
@@ -131,7 +132,7 @@ export const handlers = [
               controller.enqueue(
                 encoder.encode(
                   createEvent<null>(
-                    'method-verification',
+                    'payments',
                     SCENARIOS.ERROR.TOKEN.code,
                     null,
                     SCENARIOS.ERROR.TOKEN,
@@ -160,108 +161,125 @@ export const handlers = [
               //   break;
 
               case 'PAYMENT_METHOD_ERROR':
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN.code,
-                      null,
-                      SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN,
-                    ),
-                  ),
-                );
-                break;
-
               case 'INVALID_PAYMENT_METHOD':
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.ERROR.PAYMENT_METHOD.INVALID.code,
-                      null,
-                      SCENARIOS.ERROR.PAYMENT_METHOD.INVALID,
-                    ),
-                  ),
-                );
-                break;
-
               case 'PAYMENT_ERROR':
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.SUCCESS.code,
-                      { successURL },
-                      null,
-                    ),
-                  ),
-                );
-
-                await sleep(1000);
-
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.ERROR.PAYMENT.PLAIN.code,
-                      null,
-                      SCENARIOS.ERROR.PAYMENT.PLAIN,
-                    ),
-                  ),
-                );
-                break;
-
               case 'INVALID_PAYMENT':
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.SUCCESS.code,
-                      { successURL },
-                      null,
-                    ),
-                  ),
-                );
-
-                await sleep(1000);
-
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.ERROR.PAYMENT.INVALID.code,
-                      null,
-                      SCENARIOS.ERROR.PAYMENT.INVALID,
-                    ),
-                  ),
-                );
-                break;
-
               case 'REJECT_PAYMENT':
                 controller.enqueue(
                   encoder.encode(
                     createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.SUCCESS.code,
-                      { successURL },
+                      'payments',
+                      SCENARIOS.ERROR.SERVER.code,
                       null,
-                    ),
-                  ),
-                );
-
-                await sleep(1000);
-
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.ERROR.PAYMENT.REJECT.code,
-                      null,
-                      SCENARIOS.ERROR.PAYMENT.REJECT,
+                      SCENARIOS.ERROR.SERVER,
                     ),
                   ),
                 );
                 break;
+
+              // case 'PAYMENT_METHOD_ERROR':
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN.code,
+              //         null,
+              //         SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN,
+              //       ),
+              //     ),
+              //   );
+              //   break;
+
+              // case 'INVALID_PAYMENT_METHOD':
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.ERROR.PAYMENT_METHOD.INVALID.code,
+              //         null,
+              //         SCENARIOS.ERROR.PAYMENT_METHOD.INVALID,
+              //       ),
+              //     ),
+              //   );
+              //   break;
+
+              // case 'PAYMENT_ERROR':
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.SUCCESS.code,
+              //         { successURL },
+              //         null,
+              //       ),
+              //     ),
+              //   );
+
+              //   await sleep(1000);
+
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.ERROR.PAYMENT.PLAIN.code,
+              //         null,
+              //         SCENARIOS.ERROR.PAYMENT.PLAIN,
+              //       ),
+              //     ),
+              //   );
+              //   break;
+
+              // case 'INVALID_PAYMENT':
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.SUCCESS.code,
+              //         { successURL },
+              //         null,
+              //       ),
+              //     ),
+              //   );
+
+              //   await sleep(1000);
+
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.ERROR.PAYMENT.INVALID.code,
+              //         null,
+              //         SCENARIOS.ERROR.PAYMENT.INVALID,
+              //       ),
+              //     ),
+              //   );
+              //   break;
+
+              // case 'REJECT_PAYMENT':
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.SUCCESS.code,
+              //         { successURL },
+              //         null,
+              //       ),
+              //     ),
+              //   );
+
+              //   await sleep(1000);
+
+              //   controller.enqueue(
+              //     encoder.encode(
+              //       createEvent<PaymentMethodRes>(
+              //         'method-verification',
+              //         SCENARIOS.ERROR.PAYMENT.REJECT.code,
+              //         null,
+              //         SCENARIOS.ERROR.PAYMENT.REJECT,
+              //       ),
+              //     ),
+              //   );
+              //   break;
 
               default:
                 controller.enqueue(
@@ -275,7 +293,7 @@ export const handlers = [
                   ),
                 );
 
-                await sleep(1000);
+                await sleep(5000);
 
                 controller.enqueue(
                   encoder.encode(
