@@ -1,8 +1,7 @@
+import type { PaymentReq, PaymentRes } from '@entities/payment';
+import type { Response } from '@shared/api';
+import { API_ENDPOINTS, DUMMY_API_CONFIG } from '@shared/config';
 import { http, HttpResponse } from 'msw';
-import type { PaymentReq, PaymentRes } from '../../entities/payment/types';
-import type { Response } from '../../shared/api/httpClient';
-import { API_ENDPOINTS } from '../../shared/config/apiEndpoints';
-import { DUMMY_API_CONFIG } from '../../shared/config/dummy';
 
 export type EventName = 'payments' | 'method-verification' | 'payment-approval';
 

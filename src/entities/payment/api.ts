@@ -1,5 +1,5 @@
-import type { HttpClient } from '../../shared/api/httpClient';
-import { API_ENDPOINTS } from '../../shared/config/apiEndpoints';
+import type { HttpClient } from '@shared/api';
+import { API_ENDPOINTS } from '@shared/config';
 import type { PaymentApi, PaymentReq, PaymentRes } from './types';
 
 export const createPaymentApi = (httpClient: HttpClient): PaymentApi => {

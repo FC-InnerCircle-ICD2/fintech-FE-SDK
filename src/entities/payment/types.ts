@@ -1,4 +1,4 @@
-import type { Response } from '../../shared/api/httpClient';
+import type { Response } from '@shared/api';
 
 export type Order = {
   id: string;
