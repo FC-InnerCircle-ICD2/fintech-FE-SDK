@@ -1,6 +1,6 @@
 import ky, { type Options } from 'ky';
-import { API_BASE_URL } from '../config/apiEndpoints';
-import { handleError } from '../error/handleError';
+import { API_BASE_URL } from '@shared/config';
+import { handleError } from './handleError';
 
 export type Response<S> = {
   code: number;
