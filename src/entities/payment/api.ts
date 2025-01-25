@@ -1,3 +1,4 @@
+import { PAYMENT_ERROR, PaymentError } from '@entities/payment/error';
 import type { HttpClient } from '@shared/api';
 import { API_ENDPOINTS } from '@shared/config';
 import type { PaymentApi, PaymentReq, PaymentRes } from './types';
@@ -12,9 +13,14 @@ export const createPaymentApi = (httpClient: HttpClient): PaymentApi => {
 
       if (response.code === 200) {
         return response;
-      } else {
-        throw new Error(response.error?.message || 'Payment request failed');
       }
+
+      throw new PaymentError({
+        name: PAYMENT_ERROR.REQUEST_FAILED.name,
+        message:
+          response.error?.message || PAYMENT_ERROR.REQUEST_FAILED.message,
+        cause: response.error,
+      });
     },
 
     subscribePaymentEvents: (token: string, queryString = ''): EventSource => {

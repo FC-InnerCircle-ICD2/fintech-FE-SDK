@@ -4,26 +4,20 @@ import type { PaymentRes } from './types';
 
 export const createRedirectURL = ({ token, expiredAt }: PaymentRes): string => {
   if (!token || !expiredAt) {
-    throw new PaymentError(
-      PAYMENT_ERROR.INVALID_PARAMS,
-      '결제 정보가 유효하지 않습니다.',
-    );
+    throw new PaymentError(PAYMENT_ERROR.INVALID_PARAMS);
   }
 
   const expirationDate = new Date(expiredAt);
 
   if (isNaN(expirationDate.getTime())) {
-    throw new PaymentError(
-      PAYMENT_ERROR.INVALID_DATE,
-      '만료 시간 형식이 올바르지 않습니다.',
-    );
+    throw new PaymentError({
+      name: PAYMENT_ERROR.INVALID_DATE.name,
+      message: `${PAYMENT_ERROR.INVALID_DATE.message}: ${expiredAt}`,
+    });
   }
 
-  if (new Date() >= expirationDate) {
-    throw new PaymentError(
-      PAYMENT_ERROR.EXPIRED,
-      '결제 정보가 이미 만료되었습니다.',
-    );
+  if (Date.now() >= expirationDate.getTime()) {
+    throw new PaymentError(PAYMENT_ERROR.EXPIRED);
   }
 
   return MOBILE_APP_PATH.REDIRECT_URL(token, expiredAt);
