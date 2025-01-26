@@ -1,9 +1,9 @@
-import { createPaymentApi } from '../entities/payment/api';
-import { createHttpClient } from '../shared/api/httpClient';
-import { DUMMY_API_CONFIG } from '../shared/config/dummy';
+import { createPaymentApi } from '@entities/payment';
+import { createHttpClient } from '@shared/api';
+import { DUMMY_API_CONFIG } from '@shared/config';
 
 if (process.env.NODE_ENV === 'development') {
-  const { worker } = await import('../app/mocks/browser');
+  const { worker } = await import('@app/mocks/browser');
 
   worker.start();
 }

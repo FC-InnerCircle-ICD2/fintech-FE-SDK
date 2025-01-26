@@ -1,4 +1,4 @@
-import { PAYMENT_ERROR, PaymentError } from '@entities/payment/error';
+import { PAYMENT_ERROR, PaymentError } from './error';
 import type { HttpClient } from '@shared/api';
 import { API_ENDPOINTS } from '@shared/config';
 import type { PaymentApi, PaymentReq, PaymentRes } from './types';

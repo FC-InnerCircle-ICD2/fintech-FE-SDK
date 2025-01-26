@@ -1,8 +1,9 @@
-import { createPaymentApi } from '../entities/payment/api';
-import { createHttpClient } from '../shared/api/httpClient';
+import { createNewWindow } from '@shared/lib/createNewWindow';
+import { createPaymentApi } from '@entities/payment';
+import { createHttpClient } from '@shared/api';
 
 if (process.env.NODE_ENV === 'development') {
-  const { worker } = await import('../app/mocks/browser');
+  const { worker } = await import('@app/mocks/browser');
 
   worker.start();
 }
@@ -16,4 +17,6 @@ const requestPaymentTestButton = document.querySelector(
   'button#pay-button-test',
 );
 
-requestPaymentTestButton!.addEventListener('click', async () => {});
+requestPaymentTestButton!.addEventListener('click', async () => {
+  createNewWindow('www.example.com');
+});
