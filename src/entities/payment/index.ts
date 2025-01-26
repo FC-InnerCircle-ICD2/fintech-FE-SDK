@@ -6,3 +6,4 @@ export type {
   PaymentRes,
   RedirectURL,
 } from './types';
+export { createRedirectURL } from './lib';
