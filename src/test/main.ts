@@ -1,6 +1,7 @@
-import { createNewWindow } from '@shared/lib/createNewWindow';
+import { renderPaymentWindow } from '@shared/lib/renderPaymentWindow';
 import { createPaymentApi } from '@entities/payment';
 import { createHttpClient } from '@shared/api';
+import { MOBILE_APP_PATH } from '@shared/config';
 
 if (process.env.NODE_ENV === 'development') {
   const { worker } = await import('@app/mocks/browser');
@@ -18,5 +19,7 @@ const requestPaymentTestButton = document.querySelector(
 );
 
 requestPaymentTestButton!.addEventListener('click', async () => {
-  createNewWindow('www.example.com');
+  renderPaymentWindow(
+    MOBILE_APP_PATH.REDIRECT_URL('token', '2025-02-01 00:00:00'),
+  );
 });
