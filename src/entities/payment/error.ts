@@ -1,4 +1,4 @@
-import { BaseError } from '@shared/error';
+import { BaseError, type ErrorCode, type ErrorName } from '@shared/error';
 
 export const PAYMENT_ERROR = {
   INVALID_PARAMS: {
@@ -25,24 +25,15 @@ export const PAYMENT_ERROR = {
   },
 } as const;
 
-export type PaymentErrorName =
-  (typeof PAYMENT_ERROR)[keyof typeof PAYMENT_ERROR]['name'];
-
-type PaymentErrorWithCode = {
-  [K in keyof typeof PAYMENT_ERROR]: (typeof PAYMENT_ERROR)[K] extends {
-    code: infer C;
-  }
-    ? C
-    : never;
-}[keyof typeof PAYMENT_ERROR];
-
-export type PaymentErrorCode = Exclude<PaymentErrorWithCode, never>;
+type PaymentErrorName = ErrorName<typeof PAYMENT_ERROR>;
+type PaymentErrorCode = ErrorCode<typeof PAYMENT_ERROR>;
 
 export class PaymentError extends BaseError<PaymentErrorName> {
   constructor(params: {
     name: PaymentErrorName;
     message: string;
     cause?: unknown;
+    code?: PaymentErrorCode;
   }) {
     super(params);
     this.name = params.name;
