@@ -7,3 +7,4 @@ export type {
   RedirectURL,
 } from './types';
 export { createRedirectURL } from './lib';
+export { renderPaymentWindow } from './ui';

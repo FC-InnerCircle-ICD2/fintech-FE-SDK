@@ -39,3 +39,39 @@ export class PaymentError extends BaseError<PaymentErrorName> {
     this.name = params.name;
   }
 }
+
+export const PAYMENT_RENDER_ERROR = {
+  RENDER_FAILED: {
+    name: 'RENDER_FAILED',
+    message: '렌더링에 실패했습니다.',
+  },
+  WINDOW_OPEN_FAILED: {
+    name: 'WINDOW_OPEN_FAILED',
+    message: '새 창 열기에 실패했습니다.',
+  },
+  BUTTON_NOT_FOUND: {
+    name: 'BUTTON_NOT_FOUND',
+    message: "'다음' 버튼 요소가 존재하지 않습니다.",
+  },
+  QR_CODE_CONTAINER_NOT_FOUND: {
+    name: 'QR_CODE_CONTAINER_NOT_FOUND',
+    message: 'QR 코드를 렌더링할 컨테이너 요소가 존재하지 않습니다.',
+  },
+  QR_CODE_RENDER_FAILED: {
+    name: 'QR_CODE_RENDER_FAILED',
+    message: 'QR 코드 렌더링에 실패했습니다.',
+  },
+} as const;
+
+type PaymentRenderErrorName = ErrorName<typeof PAYMENT_RENDER_ERROR>;
+
+export class PaymentRenderError extends BaseError<PaymentRenderErrorName> {
+  constructor(params: {
+    name: PaymentRenderErrorName;
+    message: string;
+    cause?: unknown;
+  }) {
+    super(params);
+    this.name = params.name;
+  }
+}
