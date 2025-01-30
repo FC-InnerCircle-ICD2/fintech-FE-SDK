@@ -1,4 +1,4 @@
-import { renderPaymentWindow } from '@shared/lib/renderPaymentWindow';
+import { renderPaymentWindow } from '@entities/payment';
 import { createPaymentApi } from '@entities/payment';
 import { createHttpClient } from '@shared/api';
 import { MOBILE_APP_PATH } from '@shared/config';
