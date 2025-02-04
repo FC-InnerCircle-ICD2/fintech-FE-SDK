@@ -24,7 +24,6 @@ $requestPayment!.addEventListener('click', async () => {
       amount: DUMMY_API_CONFIG.ORDER.AMOUNT,
       orderName: DUMMY_API_CONFIG.ORDER.NAME,
       successUrl: DUMMY_API_CONFIG.ORDER.SUCCESS_URL,
-      failureUrl: DUMMY_API_CONFIG.ORDER.FAILURE_URL,
     });
 
     $response!.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
