@@ -5,7 +5,6 @@ export const DUMMY_API_CONFIG = {
     AMOUNT: 10000,
     NAME: 'MacBook Pro M4',
     SUCCESS_URL: 'https://example.com/success',
-    FAILURE_URL: 'https://example.com/success',
   },
   PAYMENT_EVENTS: {
     METHOD: 'PAYMENT_METHOD',

@@ -69,8 +69,7 @@ export const handlers = [
   http.post<object, PaymentReq, Response<PaymentRes>>(
     API_ENDPOINTS.REQUEST_PAYMENT,
     async ({ request }) => {
-      const { id, amount, orderName, successUrl, failureUrl } =
-        await request.json();
+      const { id, amount, orderName, successUrl } = await request.json();
 
       console.log(
         '👀 [handlers.ts] Request Body',
@@ -78,7 +77,6 @@ export const handlers = [
         amount,
         orderName,
         successUrl,
-        failureUrl,
       );
 
       // response when request succeed
@@ -110,216 +108,213 @@ export const handlers = [
   ),
 
   // connect payment events api
-  http.get(
-    API_ENDPOINTS.SUBSCRIBE_PAYMENT_EVENTS(':token'),
-    ({ params, request }) => {
-      const { token } = params;
-      const url = new URL(request.url);
-      const scenario = url.searchParams.get('scenario') || 'SUCCESS';
-      const delay = Number(url.searchParams.get('delay')) || 0;
+  http.get(API_ENDPOINTS.SUBSCRIBE_PAYMENT_EVENTS, ({ params, request }) => {
+    const { token } = params;
+    const url = new URL(request.url);
+    const scenario = url.searchParams.get('scenario') || 'SUCCESS';
+    const delay = Number(url.searchParams.get('delay')) || 0;
 
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        async start(controller) {
-          try {
-            if (delay) {
-              await sleep(delay);
-            }
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          if (delay) {
+            await sleep(delay);
+          }
 
-            // Unauthorized Token Scenario
-            if (token !== DUMMY_API_CONFIG.ORDER_TOKEN) {
+          // Unauthorized Token Scenario
+          if (token !== DUMMY_API_CONFIG.ORDER_TOKEN) {
+            controller.enqueue(
+              encoder.encode(
+                createEvent<null>(
+                  'payments',
+                  SCENARIOS.ERROR.TOKEN.code,
+                  null,
+                  SCENARIOS.ERROR.TOKEN,
+                ),
+              ),
+            );
+            controller.close();
+            return;
+          }
+
+          switch (scenario) {
+            // case 'NETWORK_ERROR':
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<null>(
+            //         'method-verification',
+            //         STATUS.NETWORK_ERROR,
+            //         null,
+            //         {
+            //           code: STATUS.NETWORK_ERROR,
+            //           message: ERROR_MESSAGES.NETWORK_ERROR,
+            //         },
+            //       ),
+            //     ),
+            //   );
+            //   break;
+
+            case 'PAYMENT_METHOD_ERROR':
+            case 'INVALID_PAYMENT_METHOD':
+            case 'PAYMENT_ERROR':
+            case 'INVALID_PAYMENT':
+            case 'REJECT_PAYMENT':
               controller.enqueue(
                 encoder.encode(
-                  createEvent<null>(
+                  createEvent<PaymentMethodRes>(
                     'payments',
-                    SCENARIOS.ERROR.TOKEN.code,
+                    SCENARIOS.ERROR.SERVER.code,
                     null,
-                    SCENARIOS.ERROR.TOKEN,
+                    SCENARIOS.ERROR.SERVER,
                   ),
                 ),
               );
-              controller.close();
-              return;
-            }
+              break;
 
-            switch (scenario) {
-              // case 'NETWORK_ERROR':
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<null>(
-              //         'method-verification',
-              //         STATUS.NETWORK_ERROR,
-              //         null,
-              //         {
-              //           code: STATUS.NETWORK_ERROR,
-              //           message: ERROR_MESSAGES.NETWORK_ERROR,
-              //         },
-              //       ),
-              //     ),
-              //   );
-              //   break;
+            // case 'PAYMENT_METHOD_ERROR':
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN.code,
+            //         null,
+            //         SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN,
+            //       ),
+            //     ),
+            //   );
+            //   break;
 
-              case 'PAYMENT_METHOD_ERROR':
-              case 'INVALID_PAYMENT_METHOD':
-              case 'PAYMENT_ERROR':
-              case 'INVALID_PAYMENT':
-              case 'REJECT_PAYMENT':
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'payments',
-                      SCENARIOS.ERROR.SERVER.code,
-                      null,
-                      SCENARIOS.ERROR.SERVER,
-                    ),
+            // case 'INVALID_PAYMENT_METHOD':
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.ERROR.PAYMENT_METHOD.INVALID.code,
+            //         null,
+            //         SCENARIOS.ERROR.PAYMENT_METHOD.INVALID,
+            //       ),
+            //     ),
+            //   );
+            //   break;
+
+            // case 'PAYMENT_ERROR':
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.SUCCESS.code,
+            //         { successURL },
+            //         null,
+            //       ),
+            //     ),
+            //   );
+
+            //   await sleep(1000);
+
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.ERROR.PAYMENT.PLAIN.code,
+            //         null,
+            //         SCENARIOS.ERROR.PAYMENT.PLAIN,
+            //       ),
+            //     ),
+            //   );
+            //   break;
+
+            // case 'INVALID_PAYMENT':
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.SUCCESS.code,
+            //         { successURL },
+            //         null,
+            //       ),
+            //     ),
+            //   );
+
+            //   await sleep(1000);
+
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.ERROR.PAYMENT.INVALID.code,
+            //         null,
+            //         SCENARIOS.ERROR.PAYMENT.INVALID,
+            //       ),
+            //     ),
+            //   );
+            //   break;
+
+            // case 'REJECT_PAYMENT':
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.SUCCESS.code,
+            //         { successURL },
+            //         null,
+            //       ),
+            //     ),
+            //   );
+
+            //   await sleep(1000);
+
+            //   controller.enqueue(
+            //     encoder.encode(
+            //       createEvent<PaymentMethodRes>(
+            //         'method-verification',
+            //         SCENARIOS.ERROR.PAYMENT.REJECT.code,
+            //         null,
+            //         SCENARIOS.ERROR.PAYMENT.REJECT,
+            //       ),
+            //     ),
+            //   );
+            //   break;
+
+            default:
+              controller.enqueue(
+                encoder.encode(
+                  createEvent<PaymentMethodRes>(
+                    'method-verification',
+                    SCENARIOS.SUCCESS.code,
+                    { successURL },
+                    null,
                   ),
-                );
-                break;
+                ),
+              );
 
-              // case 'PAYMENT_METHOD_ERROR':
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN.code,
-              //         null,
-              //         SCENARIOS.ERROR.PAYMENT_METHOD.PLAIN,
-              //       ),
-              //     ),
-              //   );
-              //   break;
+              await sleep(5000);
 
-              // case 'INVALID_PAYMENT_METHOD':
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.ERROR.PAYMENT_METHOD.INVALID.code,
-              //         null,
-              //         SCENARIOS.ERROR.PAYMENT_METHOD.INVALID,
-              //       ),
-              //     ),
-              //   );
-              //   break;
-
-              // case 'PAYMENT_ERROR':
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.SUCCESS.code,
-              //         { successURL },
-              //         null,
-              //       ),
-              //     ),
-              //   );
-
-              //   await sleep(1000);
-
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.ERROR.PAYMENT.PLAIN.code,
-              //         null,
-              //         SCENARIOS.ERROR.PAYMENT.PLAIN,
-              //       ),
-              //     ),
-              //   );
-              //   break;
-
-              // case 'INVALID_PAYMENT':
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.SUCCESS.code,
-              //         { successURL },
-              //         null,
-              //       ),
-              //     ),
-              //   );
-
-              //   await sleep(1000);
-
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.ERROR.PAYMENT.INVALID.code,
-              //         null,
-              //         SCENARIOS.ERROR.PAYMENT.INVALID,
-              //       ),
-              //     ),
-              //   );
-              //   break;
-
-              // case 'REJECT_PAYMENT':
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.SUCCESS.code,
-              //         { successURL },
-              //         null,
-              //       ),
-              //     ),
-              //   );
-
-              //   await sleep(1000);
-
-              //   controller.enqueue(
-              //     encoder.encode(
-              //       createEvent<PaymentMethodRes>(
-              //         'method-verification',
-              //         SCENARIOS.ERROR.PAYMENT.REJECT.code,
-              //         null,
-              //         SCENARIOS.ERROR.PAYMENT.REJECT,
-              //       ),
-              //     ),
-              //   );
-              //   break;
-
-              default:
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentMethodRes>(
-                      'method-verification',
-                      SCENARIOS.SUCCESS.code,
-                      { successURL },
-                      null,
-                    ),
+              controller.enqueue(
+                encoder.encode(
+                  createEvent<PaymentApprovalRes>(
+                    'payment-approval',
+                    SCENARIOS.SUCCESS.code,
+                    { paymentKey: 'abcdef' },
+                    null,
                   ),
-                );
-
-                await sleep(5000);
-
-                controller.enqueue(
-                  encoder.encode(
-                    createEvent<PaymentApprovalRes>(
-                      'payment-approval',
-                      SCENARIOS.SUCCESS.code,
-                      { paymentKey: 'abcdef' },
-                      null,
-                    ),
-                  ),
-                );
-            }
-
-            controller.close();
-          } catch (error) {
-            controller.error(error);
+                ),
+              );
           }
-        },
-      });
 
-      return new HttpResponse(stream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
-        },
-      });
-    },
-  ),
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+
+    return new HttpResponse(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    });
+  }),
 ];

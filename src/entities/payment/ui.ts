@@ -93,15 +93,19 @@ const renderDesktopPaymentWindow = async (url: string) => {
       );
     }
 
-    QRCode.toCanvas(url, { errorCorrectionLevel: 'H' }, (error, canvas) => {
-      if (error) {
-        throw new PaymentRenderError(
-          PAYMENT_RENDER_ERROR.QR_CODE_RENDER_FAILED,
-        );
-      }
+    QRCode.toCanvas(
+      url,
+      { errorCorrectionLevel: 'M', width: 240 },
+      (error, canvas) => {
+        if (error) {
+          throw new PaymentRenderError(
+            PAYMENT_RENDER_ERROR.QR_CODE_RENDER_FAILED,
+          );
+        }
 
-      container.appendChild(canvas);
-    });
+        container.appendChild(canvas);
+      },
+    );
 
     const canvas = shadowRoot.querySelector('div#pay200-qrcode>canvas');
 

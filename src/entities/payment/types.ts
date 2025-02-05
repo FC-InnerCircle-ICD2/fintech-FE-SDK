@@ -8,7 +8,6 @@ export type Order = {
 
 export type RedirectURL = {
   successUrl: string;
-  failureUrl: string;
 };
 
 export type PaymentReq = Order & RedirectURL;
