@@ -55,6 +55,8 @@ const renderMobilePaymentWindow = (url: string) => {
     button.addEventListener('click', () => {
       newWindow.location.href = url;
     });
+
+    return () => newWindow.close();
   } catch (error) {
     newWindow.close();
     throw new PaymentRenderError({
@@ -64,7 +66,7 @@ const renderMobilePaymentWindow = (url: string) => {
   }
 };
 
-const renderDesktopPaymentWindow = async (url: string) => {
+const renderDesktopPaymentWindow = (url: string) => {
   const newWindow = openNewWindow(375, 500);
 
   if (!newWindow) {
@@ -112,9 +114,10 @@ const renderDesktopPaymentWindow = async (url: string) => {
     if (!canvas || !shadowRoot.contains(canvas)) {
       throw new PaymentRenderError(PAYMENT_RENDER_ERROR.QR_CODE_RENDER_FAILED);
     }
+
+    return () => newWindow.close();
   } catch (error) {
     newWindow.close();
-
     throw new PaymentRenderError({
       ...PAYMENT_RENDER_ERROR.RENDER_FAILED,
       cause: error,
@@ -131,7 +134,7 @@ export const renderPaymentWindow = (url: string) => {
         ? renderMobilePaymentWindow
         : renderDesktopPaymentWindow;
 
-    renderer(url);
+    return renderer(url);
   } catch (error) {
     if (error instanceof PaymentError) {
       throw error;
