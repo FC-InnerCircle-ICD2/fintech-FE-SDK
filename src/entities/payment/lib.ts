@@ -1,4 +1,5 @@
 import { MOBILE_APP_PATH } from '@shared/config';
+import { detectDevice } from '@shared/lib';
 import { PAYMENT_ERROR, PaymentError } from './error';
 import type { PaymentRes } from './types';
 
@@ -20,5 +21,18 @@ export const createRedirectURL = ({ token, expiredAt }: PaymentRes): string => {
     throw new PaymentError(PAYMENT_ERROR.EXPIRED);
   }
 
-  return MOBILE_APP_PATH.REDIRECT_URL(token, expiredAt);
+  const url =
+    detectDevice() === 'mobile'
+      ? MOBILE_APP_PATH.REDIRECT_URL.MOBILE
+      : MOBILE_APP_PATH.REDIRECT_URL.DESKTOP;
+
+  return addTokenAndExpiredAt(url, {
+    token,
+    expiredAt,
+  });
 };
+
+const addTokenAndExpiredAt = (
+  url: string,
+  { token, expiredAt }: { token: string; expiredAt: string },
+) => `${url}?token=${token}&expiredAt=${expiredAt}`;
