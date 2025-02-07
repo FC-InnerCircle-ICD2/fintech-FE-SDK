@@ -1,5 +1,4 @@
 import { pay200SDK } from '@app/sdk';
-import { MOBILE_APP_PATH } from '@shared/config';
 
 if (process.env.NODE_ENV === 'development') {
   const { worker } = await import('@app/mocks/browser');
@@ -20,6 +19,6 @@ requestPaymentTestButton!.addEventListener('click', async () => {
     id: '1234567890',
     amount: 1000,
     orderName: 'test',
-    successUrl: MOBILE_APP_PATH.REDIRECT_URL('token', '2025-02-01 00:00:00'),
+    successUrl: 'https://example.com',
   });
 });
