@@ -25,7 +25,7 @@ const createPaymentLayout = (shadowRoot: ShadowRoot, content: string) => {
   `;
 };
 
-const renderMobilePaymentWindow = () => {
+const renderMobilePaymentWindow = (url: string) => {
   const newWindow = openNewWindow();
 
   if (!newWindow)
@@ -53,8 +53,7 @@ const renderMobilePaymentWindow = () => {
     }
 
     button.addEventListener('click', () => {
-      newWindow.location.href =
-        'https://pay-200.vercel.app/payment/deeplink/success';
+      newWindow.location.href = url;
     });
 
     return () => newWindow.close();
@@ -130,9 +129,12 @@ export const renderPaymentWindow = (url: string) => {
   try {
     const device = detectDevice();
 
-    return device === 'mobile'
-      ? renderMobilePaymentWindow()
-      : renderDesktopPaymentWindow(url);
+    const renderer =
+      device === 'mobile'
+        ? renderMobilePaymentWindow
+        : renderDesktopPaymentWindow;
+
+    return renderer(url);
   } catch (error) {
     if (error instanceof PaymentError) {
       throw error;
