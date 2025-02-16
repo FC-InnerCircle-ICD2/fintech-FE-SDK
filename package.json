@@ -35,7 +35,6 @@
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.14.0",
     "husky": "^9.1.7",
-    "ky": "^1.7.4",
     "msw": "^2.7.0",
     "prettier": "^3.4.2",
     "qrcode": "^1.5.4",
