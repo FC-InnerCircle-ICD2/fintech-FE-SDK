@@ -5,10 +5,10 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   server: {
     proxy: {
-      '/api': {
+      '/proxy': {
         target: 'https://payment.pay-200.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/proxy/, ''),
         secure: false,
         ws: true,
       },
