@@ -1,10 +1,11 @@
 import { pay200SDK } from '@app/sdk';
 
-if (process.env.NODE_ENV === 'development') {
-  const { worker } = await import('@app/mocks/browser');
+// Mocking
+// if (process.env.NODE_ENV === 'development') {
+//   const { worker } = await import('@app/mocks/browser');
 
-  worker.start();
-}
+//   worker.start();
+// }
 
 const requestPaymentTestButton = document.querySelector(
   'button#pay-button-test',
@@ -12,13 +13,12 @@ const requestPaymentTestButton = document.querySelector(
 
 requestPaymentTestButton!.addEventListener('click', async () => {
   const requestPayment = pay200SDK({
-    apiKey: '1234567890',
+    apiKey: 'pay200',
   });
 
   await requestPayment({
-    id: '1234567890',
-    amount: 1000,
-    orderName: 'test',
-    successUrl: 'https://example.com',
+    orderId: '123',
+    amount: 5000000,
+    orderName: 'MacBook Pro 15 M5 Max',
   });
 });
