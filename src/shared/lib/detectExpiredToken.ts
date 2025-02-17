@@ -1,5 +1,9 @@
+import { compareServerTimestampByNow } from './compareTimestamp';
+
 export const detectExpiredToken = (expiredAt: string, callback: () => void) => {
-  const diff = new Date(expiredAt).getTime() - Date.now();
+  const diff = compareServerTimestampByNow(expiredAt);
+
   const timeoutId = setTimeout(callback, diff);
+
   return () => clearTimeout(timeoutId);
 };
