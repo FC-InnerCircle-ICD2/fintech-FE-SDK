@@ -1,23 +1,28 @@
 import { MOBILE_APP_PATH } from '@shared/config';
-import { detectDevice } from '@shared/lib';
+import { compareServerTimestampByNow, detectDevice } from '@shared/lib';
 import { PAYMENT_ERROR, PaymentError } from './error';
-import type { PaymentRes } from './types';
+import type { RequestPaymentRes } from './types';
 
-export const createRedirectURL = ({ token, expiredAt }: PaymentRes): string => {
+export const createRedirectURL = ({
+  token,
+  expiredAt,
+}: RequestPaymentRes): string => {
   if (!token || !expiredAt) {
     throw new PaymentError(PAYMENT_ERROR.INVALID_PARAMS);
   }
 
-  const expirationDate = new Date(expiredAt);
+  const expiredAtDate = new Date(expiredAt + 'Z');
 
-  if (isNaN(expirationDate.getTime())) {
+  if (isNaN(expiredAtDate.getTime())) {
     throw new PaymentError({
       name: PAYMENT_ERROR.INVALID_DATE.name,
       message: `${PAYMENT_ERROR.INVALID_DATE.message}: ${expiredAt}`,
     });
   }
 
-  if (Date.now() >= expirationDate.getTime()) {
+  const isExpired = compareServerTimestampByNow(expiredAt) < 0;
+
+  if (isExpired) {
     throw new PaymentError(PAYMENT_ERROR.EXPIRED);
   }
 
