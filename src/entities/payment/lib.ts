@@ -39,5 +39,5 @@ export const createRedirectURL = ({
 
 const addTokenAndExpiredAt = (
   url: string,
-  { token, expiredAt }: { token: string; expiredAt: string },
+  { token, expiredAt }: RequestPaymentRes,
 ) => `${url}?token=${token}&expiredAt=${expiredAt}`;
