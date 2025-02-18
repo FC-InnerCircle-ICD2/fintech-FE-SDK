@@ -1,7 +1,10 @@
+import { EventSourcePolyfill } from 'event-source-polyfill';
+
 type EventSourceState = 'CONNECTING' | 'OPEN' | 'CLOSED';
 
 type EventSourceOptions = {
   withCredentials?: boolean;
+  headers?: Record<string, string>;
   onStateChange?: (state: EventSourceState) => void;
   maxRetries?: number;
 };
@@ -24,7 +27,7 @@ export const createSSE = <T>(
   options: EventSourceOptions = {},
   handlers: EventHandlers<T> = {},
 ) => {
-  const { withCredentials, onStateChange, maxRetries = 3 } = options;
+  const { withCredentials, onStateChange, maxRetries = 3, headers } = options;
   let retryCount = 0;
   let eventSource: EventSource | null = null;
 
@@ -35,7 +38,10 @@ export const createSSE = <T>(
   };
 
   const connect = () => {
-    eventSource = new EventSource(url, { withCredentials });
+    eventSource = new EventSourcePolyfill(url, {
+      withCredentials,
+      headers,
+    });
 
     eventSource.onopen = (event) => {
       retryCount = 0;
@@ -59,7 +65,15 @@ export const createSSE = <T>(
         }
         retryCount++;
         console.log(`재연결 시도 ${retryCount}/${maxRetries}`);
+
+        eventSource.close();
+
+        setTimeout(() => {
+          connect();
+        }, 1000 * retryCount);
       }
+
+      handlers.onError?.(error);
     };
 
     if (handlers.eventHandlers) {
