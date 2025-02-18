@@ -3,8 +3,12 @@ import {
   PaymentError,
   PaymentRenderError,
 } from '@entities/payment/error';
-import { createShadowDOMRoot, detectDevice, openNewWindow } from '@shared/lib';
-import QRCode from 'qrcode';
+import {
+  createShadowDOMRoot,
+  detectDevice,
+  loadQRCode,
+  openNewWindow,
+} from '@shared/lib';
 
 const createPaymentLayout = (shadowRoot: ShadowRoot, content: string) => {
   shadowRoot.innerHTML = `
@@ -25,7 +29,7 @@ const createPaymentLayout = (shadowRoot: ShadowRoot, content: string) => {
   `;
 };
 
-const renderMobilePaymentWindow = (url: string) => {
+const renderMobilePaymentWindow = async (url: string) => {
   const newWindow = openNewWindow();
 
   if (!newWindow)
@@ -66,7 +70,7 @@ const renderMobilePaymentWindow = (url: string) => {
   }
 };
 
-const renderDesktopPaymentWindow = (url: string) => {
+const renderDesktopPaymentWindow = async (url: string) => {
   const newWindow = openNewWindow(375, 500);
 
   if (!newWindow) {
@@ -94,6 +98,8 @@ const renderDesktopPaymentWindow = (url: string) => {
         PAYMENT_RENDER_ERROR.QR_CODE_CONTAINER_NOT_FOUND,
       );
     }
+
+    const QRCode = await loadQRCode();
 
     QRCode.toCanvas(
       url,
@@ -125,7 +131,7 @@ const renderDesktopPaymentWindow = (url: string) => {
   }
 };
 
-export const renderPaymentWindow = (url: string) => {
+export const renderPaymentWindow = async (url: string) => {
   try {
     const device = detectDevice();
 
@@ -134,7 +140,7 @@ export const renderPaymentWindow = (url: string) => {
         ? renderMobilePaymentWindow
         : renderDesktopPaymentWindow;
 
-    return renderer(url);
+    return await renderer(url);
   } catch (error) {
     if (error instanceof PaymentError) {
       throw error;
