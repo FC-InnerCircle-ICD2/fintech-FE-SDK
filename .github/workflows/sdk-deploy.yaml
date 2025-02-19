@@ -47,5 +47,5 @@ jobs:
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
 
-      - name: Print deployed URL
-        run: echo "Deployed URL: https://${{ secrets.CLOUD_FRONT_DOMAIN }}/v${{ env.VERSION }}/sdk.js"
+      # - name: Print deployed URL
+      #   run: echo "Deployed URL: ${{ secrets.CLOUD_FRONT_DOMAIN }}/v${{ env.VERSION }}/sdk.js"
