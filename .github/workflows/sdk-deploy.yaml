@@ -1,0 +1,51 @@
+name: Deploy React SDK to S3
+
+on:
+  push:
+    branches:
+      - feat/add-sdk-deploy
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SDK Version (e.g., 1.0.0)'
+        required: false
+        default: 'latest'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build SDK
+        run: npm run build
+
+      - name: Set version from input or default
+        run: |
+          VERSION="${{ inputs.version || 'latest' }}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Deploying SDK Version: $VERSION"
+
+      - name: Deploy to S3 (Versioned)
+        run: aws s3 sync ./build s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/ --delete
+
+      - name: Deploy to S3 (Latest)
+        if: env.VERSION == 'latest'
+        run: aws s3 sync ./build s3://${{ secrets.S3_BUCKET_NAME }}/latest/ --delete
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
+
+      - name: Print deployed URL
+        run: echo "Deployed URL: https://${{ secrets.CLOUD_FRONT_DOMAIN }}/v${{ env.VERSION }}/sdk.js"
