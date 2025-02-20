@@ -56,21 +56,21 @@ export const createSSE = <T>(
     eventSource.onerror = (error) => {
       handleStateChange();
 
-      if (eventSource?.readyState === EventSource.CLOSED) {
-        if (retryCount >= maxRetries) {
-          console.error('최대 재시도 횟수 초과');
-          handlers.onError?.(error);
-          eventSource.close();
-          return;
-        }
+      if (retryCount < maxRetries) {
         retryCount++;
         console.log(`재연결 시도 ${retryCount}/${maxRetries}`);
 
-        eventSource.close();
+        eventSource?.close();
+
+        const retryDelay = Math.min(1000 * Math.pow(2, retryCount - 1), 10000); // 지수 백오프 적용, 최대 10초
 
         setTimeout(() => {
           connect();
-        }, 1000 * retryCount);
+        }, retryDelay);
+      } else {
+        console.error('최대 재시도 횟수 초과');
+        handlers.onError?.(error);
+        eventSource?.close();
       }
 
       handlers.onError?.(error);
