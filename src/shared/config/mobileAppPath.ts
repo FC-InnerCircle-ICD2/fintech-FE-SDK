@@ -1,6 +1,6 @@
 export const MOBILE_APP_PATH = {
   REDIRECT_URL: {
-    MOBILE: 'https://pay-200.vercel.app/payment/deeplink/success',
-    DESKTOP: 'https://pay-200.vercel.app/payment/detail',
+    MOBILE: 'https://m.pay-200.com/payment/deeplink/success',
+    DESKTOP: 'https://m.pay-200.com/payment/detail',
   },
 } as const;
