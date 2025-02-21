@@ -14,9 +14,27 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 20px;
       "
     >
-      <button id="pay-button-test">결제하기</button>
+      <form
+        id="payment-form"
+        style="display: flex; flex-direction: column; gap: 10px"
+      >
+        <div>
+          <label for="orderId">주문번호:</label>
+          <input type="text" id="orderId" required />
+        </div>
+        <div>
+          <label for="amount">결제금액:</label>
+          <input type="number" id="amount" required />
+        </div>
+        <div>
+          <label for="orderName">주문명:</label>
+          <input type="text" id="orderName" required />
+        </div>
+        <button type="submit" id="pay-button-test">결제하기</button>
+      </form>
     </section>
     <script type="module" src="./src/test/index.ts"></script>
   </body>

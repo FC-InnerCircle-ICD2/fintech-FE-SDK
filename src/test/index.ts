@@ -7,18 +7,25 @@ import { pay200SDK } from '@app/sdk';
 //   worker.start();
 // }
 
-const requestPaymentTestButton = document.querySelector(
-  'button#pay-button-test',
-);
+const paymentForm = document.querySelector<HTMLFormElement>('#payment-form');
 
-requestPaymentTestButton!.addEventListener('click', async () => {
+paymentForm!.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const orderId = document.querySelector<HTMLInputElement>('#orderId')!.value;
+  const amount = Number(
+    document.querySelector<HTMLInputElement>('#amount')!.value,
+  );
+  const orderName =
+    document.querySelector<HTMLInputElement>('#orderName')!.value;
+
   const requestPayment = pay200SDK({
     apiKey: 'pay200',
   });
 
   await requestPayment({
-    orderId: '123',
-    amount: 5000000,
-    orderName: 'MacBook Pro 15 M5 Max',
+    orderId,
+    amount,
+    orderName,
   });
 });
