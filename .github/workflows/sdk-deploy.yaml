@@ -33,7 +33,7 @@ jobs:
 
       - name: Set version from input or default
         run: |
-          VERSION="${{ inputs.version || '2' }}"
+          VERSION="${{ inputs.version || 'v3' }}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Deploying SDK Version: $VERSION"
 
