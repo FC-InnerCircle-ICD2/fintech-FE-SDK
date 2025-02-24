@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'SDK Version (e.g., 1.0.0)'
+        description: 'SDK Version (ex v1, v2)'
         required: false
         default: '1'
 
