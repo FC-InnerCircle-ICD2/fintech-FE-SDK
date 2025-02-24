@@ -21,7 +21,7 @@ export const createPaymentApi = ({ apiKey }: ApiKey): PaymentApi => {
 
         if (!response.ok) {
           throw new PaymentError({
-            name: PAYMENT_ERROR.REQUEST_FAILED.name,
+            name: PAYMENT_ERROR.UNKNOWN_ERROR.name,
             message: `HTTP Error: ${response.status} ${response.statusText}`,
             cause: {
               status: response.status,
@@ -37,8 +37,8 @@ export const createPaymentApi = ({ apiKey }: ApiKey): PaymentApi => {
         }
 
         throw new PaymentError({
-          name: PAYMENT_ERROR.REQUEST_FAILED.name,
-          message: data.error?.message || PAYMENT_ERROR.REQUEST_FAILED.message,
+          name: PAYMENT_ERROR.UNKNOWN_ERROR.name,
+          message: data.error?.message || PAYMENT_ERROR.UNKNOWN_ERROR.message,
           cause: data.error,
         });
       } catch (error) {
@@ -46,12 +46,11 @@ export const createPaymentApi = ({ apiKey }: ApiKey): PaymentApi => {
           throw error;
         }
 
-        // 기타 예상치 못한 에러
-        // throw new PaymentError({
-        //   name: PAYMENT_ERROR.UNKNOWN_ERROR.name,
-        //   message: '결제 처리 중 오류가 발생했습니다',
-        //   cause: error,
-        // });
+        throw new PaymentError({
+          name: PAYMENT_ERROR.UNKNOWN_ERROR.name,
+          message: PAYMENT_ERROR.UNKNOWN_ERROR.message,
+          cause: error,
+        });
       }
     },
 
