@@ -1,0 +1,45 @@
+name: Deploy SDK to S3
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SDK Version'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build SDK
+        run: npm run build
+
+      - name: Set version from input or default
+        run: |
+          VERSION="${{ inputs.version || 'latest' }}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Deploying SDK Version: $VERSION"
+
+      - name: Configure AWS credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to S3 (Versioned)
+        run: aws s3 cp ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/sdk.js
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
