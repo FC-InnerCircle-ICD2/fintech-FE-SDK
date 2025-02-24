@@ -44,11 +44,11 @@ jobs:
           aws configure set region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to S3 (Versioned)
-        run: aws s3 sync ./build s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/ --delete
+        run: aws s3 sync ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/ --delete
 
       - name: Deploy to S3 (Latest)
         if: env.VERSION == 'latest'
-        run: aws s3 sync ./build s3://${{ secrets.S3_BUCKET_NAME }}/latest/ --delete
+        run: aws s3 sync ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/latest/ --delete
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
