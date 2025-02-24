@@ -1,11 +1,16 @@
 name: Deploy SDK to S3
 
 on:
+  push:
+    branches:
+      - feat/add-sdk-deploy
+
   workflow_dispatch:
     inputs:
       version:
-        description: 'SDK Version'
-        required: true
+        description: 'SDK Version (e.g., 1.0.0)'
+        required: false
+        default: 'latest'
 
 jobs:
   deploy:
@@ -39,7 +44,7 @@ jobs:
           aws configure set region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to S3 (Versioned)
-        run: aws s3 cp ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/sdk.js
+        run: aws s3 cp ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/${{ env.VERSION }}/sdk.js
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
