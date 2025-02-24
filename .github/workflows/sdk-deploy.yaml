@@ -10,7 +10,7 @@ on:
       version:
         description: 'SDK Version (ex v1, v2)'
         required: false
-        default: '1'
+        default: 'v3'
 
 jobs:
   deploy:
@@ -44,11 +44,10 @@ jobs:
           aws configure set region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to S3 (Versioned)
-        run: aws s3 cp ./dist/assets/sdk.js s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/sdk.js
-
-      - name: Deploy to S3 (Latest)
-        if: env.VERSION == 'latest'
-        run: aws s3 cp ./dist/assets/sdk.js s3://${{ secrets.S3_BUCKET_NAME }}/latest/sdk.js
+        run: |
+          FILE_NAME=$(ls ./dist/assets/*.js | head -n 1)
+          echo "Found file: $FILE_NAME"
+          aws s3 cp "$FILE_NAME" s3://${{ secrets.S3_BUCKET_NAME }}/${{ env.VERSION }}/sdk.js
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
