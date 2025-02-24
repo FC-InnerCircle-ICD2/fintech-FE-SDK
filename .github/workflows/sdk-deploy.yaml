@@ -33,7 +33,7 @@ jobs:
 
       - name: Set version from input or default
         run: |
-          VERSION="${{ inputs.version || '1' }}"
+          VERSION="${{ inputs.version || '2' }}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Deploying SDK Version: $VERSION"
 
@@ -44,11 +44,11 @@ jobs:
           aws configure set region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to S3 (Versioned)
-        run: aws s3 sync ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/ --delete
+        run: aws s3 sync ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/v${{ env.VERSION }}/sdk.js --delete
 
       - name: Deploy to S3 (Latest)
         if: env.VERSION == 'latest'
-        run: aws s3 sync ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/latest/ --delete
+        run: aws s3 sync ./dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/latest/sdk.js --delete
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUD_FRONT_ID }} --paths "/*"
