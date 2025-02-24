@@ -4,6 +4,8 @@ import {
   type Order,
   type RedirectURL,
   renderPaymentWindow,
+  PaymentError,
+  PAYMENT_ERROR,
 } from '@entities/payment';
 import { detectExpiredToken } from '@shared/lib';
 
@@ -17,6 +19,27 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
     successUrl,
   }: Order & RedirectURL) => {
     try {
+      if (!amount || !orderId || !orderName || !successUrl) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_PARAMS.name,
+          message: PAYMENT_ERROR.INVALID_PARAMS.message,
+        });
+      }
+
+      if (amount <= 0) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_AMOUNT.name,
+          message: PAYMENT_ERROR.INVALID_AMOUNT.message,
+        });
+      }
+
+      if (!successUrl.includes(window.location.origin)) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_SUCCESS_URL.name,
+          message: PAYMENT_ERROR.INVALID_SUCCESS_URL.message,
+        });
+      }
+
       const { ok, data, error } = await paymentApi.requestPayment({
         amount,
         orderId,
