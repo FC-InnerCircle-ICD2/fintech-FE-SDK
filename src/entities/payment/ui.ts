@@ -32,8 +32,9 @@ const createPaymentLayout = (shadowRoot: ShadowRoot, content: string) => {
 const renderMobilePaymentWindow = async (url: string) => {
   const newWindow = openNewWindow();
 
-  if (!newWindow)
+  if (!newWindow) {
     throw new PaymentRenderError(PAYMENT_RENDER_ERROR.WINDOW_OPEN_FAILED);
+  }
 
   try {
     const shadowRoot = createShadowDOMRoot(newWindow.document);
@@ -45,6 +46,7 @@ const renderMobilePaymentWindow = async (url: string) => {
   Pay200으로 결제하려면<br /><span style="color: #1293fb">다음</span>  버튼을 눌러주세요.
 </p>
 <button id="pay200-next-button" style="appearance: none; border: none; padding: 0.75rem 5rem; background: #1293fb; color: white; font-size: 1.25rem; font-weight: 700; box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25); border-radius: 0.5rem; overflow: hidden; cursor: pointer;" aria-label="다음 단계로 이동">다음</button>
+<p id="disabled" style="color: gray; font-size: 1rem"></p>
       `,
     );
 
@@ -60,7 +62,19 @@ const renderMobilePaymentWindow = async (url: string) => {
       newWindow.location.href = url;
     });
 
-    return () => newWindow.close();
+    const disabled =
+      shadowRoot.querySelector<HTMLParagraphElement>('#disabled');
+
+    if (!disabled || !shadowRoot.contains(disabled)) {
+      throw new PaymentRenderError(PAYMENT_RENDER_ERROR.DISABLED_NOT_FOUND);
+    }
+
+    return () => {
+      newWindow.close();
+      button.disabled = true;
+      disabled.textContent =
+        'QR 코드가 만료되었어요. 결제를 다시 시도해주세요.';
+    };
   } catch (error) {
     newWindow.close();
     throw new PaymentRenderError({
