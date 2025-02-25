@@ -8,7 +8,10 @@ export const createRedirectURL = ({
   expiredAt,
 }: RequestPaymentRes): string => {
   if (!token || !expiredAt) {
-    throw new PaymentError(PAYMENT_ERROR.INVALID_PARAMS);
+    throw new PaymentError({
+      name: PAYMENT_ERROR.INVALID_PARAMS.name,
+      message: PAYMENT_ERROR.INVALID_PARAMS.message,
+    });
   }
 
   const expiredAtDate = new Date(expiredAt + 'Z');
@@ -23,7 +26,10 @@ export const createRedirectURL = ({
   const isExpired = compareServerTimestampByNow(expiredAt) < 0;
 
   if (isExpired) {
-    throw new PaymentError(PAYMENT_ERROR.EXPIRED);
+    throw new PaymentError({
+      name: PAYMENT_ERROR.EXPIRED.name,
+      message: PAYMENT_ERROR.EXPIRED.message,
+    });
   }
 
   return addTokenAndExpiredAt(MOBILE_APP_PATH, {

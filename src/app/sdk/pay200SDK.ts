@@ -4,6 +4,9 @@ import {
   type Order,
   type RedirectURL,
   renderPaymentWindow,
+  PaymentError,
+  PAYMENT_ERROR,
+  type EventSourceHandler,
 } from '@entities/payment';
 import { detectExpiredToken } from '@shared/lib';
 
@@ -17,6 +20,27 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
     successUrl,
   }: Order & RedirectURL) => {
     try {
+      if (!amount || !orderId || !orderName || !successUrl) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_PARAMS.name,
+          message: PAYMENT_ERROR.INVALID_PARAMS.message,
+        });
+      }
+
+      if (amount <= 0) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_AMOUNT.name,
+          message: PAYMENT_ERROR.INVALID_AMOUNT.message,
+        });
+      }
+
+      if (!successUrl.includes(window.location.origin)) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_SUCCESS_URL.name,
+          message: PAYMENT_ERROR.INVALID_SUCCESS_URL.message,
+        });
+      }
+
       const { ok, data, error } = await paymentApi.requestPayment({
         amount,
         orderId,
@@ -36,13 +60,45 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
 
       const closePaymentWindow = await renderPaymentWindow(redirectURL);
 
-      detectExpiredToken(expiredAt, closePaymentWindow);
+      const paymentSession = {
+        sseConnection: null as EventSourceHandler | null,
+        isExpired: false,
+      };
 
-      await paymentApi.subscribePaymentEvents({
+      const handleExpiration = () => {
+        console.log('토큰이 만료되었습니다. 결제 창과 SSE 연결을 종료합니다.');
+        closePaymentWindow();
+
+        if (paymentSession.sseConnection) {
+          paymentSession.sseConnection.close();
+          paymentSession.sseConnection = null;
+        }
+
+        paymentSession.isExpired = true;
+      };
+
+      const clearExpiredTokenTimeout = detectExpiredToken(
+        expiredAt,
+        handleExpiration,
+      );
+
+      const wrappedClosePaymentWindow = () => {
+        closePaymentWindow();
+        clearExpiredTokenTimeout();
+
+        if (paymentSession.sseConnection && !paymentSession.isExpired) {
+          paymentSession.sseConnection.close();
+          paymentSession.sseConnection = null;
+        }
+      };
+
+      const sseConnection = await paymentApi.subscribePaymentEvents({
         orderId,
-        close: closePaymentWindow,
+        close: wrappedClosePaymentWindow,
         successUrl,
       });
+
+      paymentSession.sseConnection = sseConnection;
     } catch (error) {
       console.error('👀 [pay200SDK] error', error);
       throw error;
