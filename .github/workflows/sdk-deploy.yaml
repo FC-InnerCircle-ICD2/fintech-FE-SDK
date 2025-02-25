@@ -3,6 +3,9 @@ name: Deploy SDK to S3
 on:
   workflow_dispatch:
     inputs:
+      ref:
+        description: 'Git Reference (Tag, Branch, or Commit SHA)'
+        required: true
       version:
         description: 'SDK Version'
         required: true
@@ -14,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -26,9 +31,9 @@ jobs:
       - name: Build SDK
         run: npm run build
 
-      - name: Set version from input or default
+      - name: Set version from input
         run: |
-          VERSION="${{ inputs.version || 'latest' }}"
+          VERSION="${{ inputs.version }}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Deploying SDK Version: $VERSION"
 
