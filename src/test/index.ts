@@ -17,8 +17,9 @@ requestPaymentTestButton!.addEventListener('click', async () => {
   });
 
   await requestPayment({
-    orderId: '123',
+    orderId: '1123asdsd12asd23',
     amount: 5000000,
     orderName: 'MacBook Pro 15 M5 Max',
+    successUrl: 'http://localhost:5173/success',
   });
 });
