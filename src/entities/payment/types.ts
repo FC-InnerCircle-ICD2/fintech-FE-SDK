@@ -18,7 +18,17 @@ export type SubscribePaymentEventsReq = Pick<Order, 'orderId'> &
   Pick<RedirectURL, 'successUrl'> & {
     close: () => void;
   };
-export type SubscribePaymentEventsRes = void;
+
+export type EventSourceHandler = {
+  close: () => void;
+  getState: () => string;
+  addEventListener: <K>(
+    eventName: string,
+    callback: (data: K) => void,
+  ) => () => void;
+};
+
+export type SubscribePaymentEventsRes = EventSourceHandler;
 
 type SuccessResponse<T> = {
   ok: true;

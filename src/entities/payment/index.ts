@@ -1,5 +1,10 @@
 export { createPaymentApi } from './api';
-export type { Order, PaymentApi, RedirectURL } from './types';
+export type {
+  Order,
+  RedirectURL,
+  EventSourceHandler,
+  PaymentApi,
+} from './types';
 export { createRedirectURL } from './lib';
 export { renderPaymentWindow } from './ui';
 export {
