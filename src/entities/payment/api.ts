@@ -112,6 +112,8 @@ export const createPaymentApi = ({ apiKey }: ApiKey): PaymentApi => {
           },
         },
       );
+
+      return paymentEvents;
     },
   };
 };
