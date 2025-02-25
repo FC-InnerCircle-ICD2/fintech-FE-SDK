@@ -28,7 +28,12 @@
       "@features/*": ["./features/*"],
       "@entities/*": ["./entities/*"],
       "@shared/*": ["./shared/*"]
-    }
+    },
+
+    /* TypeScript Declaration Output */
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": false
   },
   "include": ["src"]
 }
