@@ -1,2 +1,2 @@
 export const MOBILE_APP_PATH =
-  'https://pay-200.vercel.app/payment/deeplink/success' as const;
+  'https://m.pay-200.com/payment/deeplink/success' as const;
