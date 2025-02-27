@@ -1,17 +1,17 @@
 {
-  "name": "sdk",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@pay200/sdk",
+  "version": "0.0.5",
   "type": "module",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
+      "import": "./dist/index.es.js",
+      "default": "./dist/index.umd.js",
+      "types": "./dist/index.d.ts"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
@@ -48,5 +48,8 @@
   },
   "dependencies": {
     "event-source-polyfill": "^1.0.31"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
