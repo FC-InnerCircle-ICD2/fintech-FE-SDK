@@ -16,23 +16,12 @@ export default defineConfig({
       staticImport: true,
     }),
   ],
-  server: {
-    proxy: {
-      '/proxy': {
-        target: 'https://payment.pay-200.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/proxy/, ''),
-        secure: false,
-        ws: true,
-      },
-    },
-  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/app/sdk/index.ts'),
       name: 'pay200SDK',
-      fileName: (format) => `pay200-sdk.${format}.js`,
-      formats: ['es', 'umd'],
+      fileName: (format) => `index.${format}.js`,
+      formats: ['cjs', 'es', 'umd'],
     },
     rollupOptions: {
       external: [],
