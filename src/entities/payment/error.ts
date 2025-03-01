@@ -40,6 +40,10 @@ export const PAYMENT_ERROR = {
     name: 'PAYMENT_INVALID_SUCCESS_URL',
     message: '결제 성공 URL이 유효하지 않습니다.',
   },
+  INVALID_FAIL_URL: {
+    name: 'PAYMENT_INVALID_FAIL_URL',
+    message: '결제 실패 URL이 유효하지 않습니다.',
+  },
   INVALID_DATE: {
     name: 'PAYMENT_INVALID_DATE',
     message: '만료 시간 형식이 올바르지 않습니다.',
