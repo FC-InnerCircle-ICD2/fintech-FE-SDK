@@ -10,12 +10,13 @@ export type Order = {
 
 export type RedirectURL = {
   successUrl: string;
+  failUrl: string;
 };
 
 export type RequestPaymentReq = Order;
 export type RequestPaymentRes = { token: string; expiredAt: string };
 export type SubscribePaymentEventsReq = Pick<Order, 'orderId'> &
-  Pick<RedirectURL, 'successUrl'> & {
+  Pick<RedirectURL, 'successUrl' | 'failUrl'> & {
     close: () => void;
   };
 
