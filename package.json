@@ -6,8 +6,8 @@
     "./package.json": "./package.json",
     ".": {
       "import": "./dist/index.es.js",
-      "default": "./dist/index.umd.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.umd.js"
     }
   },
   "main": "./dist/index.cjs.js",
