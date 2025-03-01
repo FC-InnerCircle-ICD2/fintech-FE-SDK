@@ -18,9 +18,10 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
     orderId,
     orderName,
     successUrl,
+    failUrl,
   }: Order & RedirectURL) => {
     try {
-      if (!amount || !orderId || !orderName || !successUrl) {
+      if (!amount || !orderId || !orderName || !successUrl || !failUrl) {
         throw new PaymentError({
           name: PAYMENT_ERROR.INVALID_PARAMS.name,
           message: PAYMENT_ERROR.INVALID_PARAMS.message,
@@ -38,6 +39,13 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
         throw new PaymentError({
           name: PAYMENT_ERROR.INVALID_SUCCESS_URL.name,
           message: PAYMENT_ERROR.INVALID_SUCCESS_URL.message,
+        });
+      }
+
+      if (!failUrl.includes(window.location.origin)) {
+        throw new PaymentError({
+          name: PAYMENT_ERROR.INVALID_FAIL_URL.name,
+          message: PAYMENT_ERROR.INVALID_FAIL_URL.message,
         });
       }
 
@@ -96,6 +104,7 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
         orderId,
         close: wrappedClosePaymentWindow,
         successUrl,
+        failUrl,
       });
 
       paymentSession.sseConnection = sseConnection;
