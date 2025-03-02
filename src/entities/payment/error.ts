@@ -52,6 +52,10 @@ export const PAYMENT_ERROR = {
     name: 'PAYMENT_EXPIRED',
     message: '결제 정보가 이미 만료되었습니다.',
   },
+  PAYMENT_REJECTED: {
+    name: 'PAYMENT_REJECTED',
+    message: '결제가 거절되었습니다.',
+  },
   CONNECTION_FAILED: {
     name: 'PAYMENT_CONNECTION_FAILED',
     message: '결제 이벤트 연결에 실패했습니다.',

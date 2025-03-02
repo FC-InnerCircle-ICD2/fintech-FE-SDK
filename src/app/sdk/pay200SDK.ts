@@ -7,6 +7,8 @@ import {
   PaymentError,
   PAYMENT_ERROR,
   type EventSourceHandler,
+  PaymentRenderError,
+  PaymentApiError,
 } from '@entities/payment';
 import { detectExpiredToken } from '@shared/lib';
 
@@ -110,6 +112,22 @@ export const pay200SDK = ({ apiKey }: { apiKey: string }) => {
       paymentSession.sseConnection = sseConnection;
     } catch (error) {
       console.error('👀 [pay200SDK] error', error);
+
+      if (failUrl) {
+        let errorName: string = PAYMENT_ERROR.UNKNOWN_ERROR.name;
+
+        if (
+          error instanceof PaymentError ||
+          error instanceof PaymentApiError ||
+          error instanceof PaymentRenderError
+        ) {
+          errorName = error.name;
+        }
+
+        window.location.href = `${failUrl}?error=${errorName}`;
+        return;
+      }
+
       throw error;
     }
   };

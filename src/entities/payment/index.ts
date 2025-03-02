@@ -12,4 +12,5 @@ export {
   PaymentError,
   PAYMENT_RENDER_ERROR,
   PaymentRenderError,
+  PaymentApiError,
 } from './error';
