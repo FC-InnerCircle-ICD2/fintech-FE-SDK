@@ -53,5 +53,6 @@ export interface PaymentApi {
     orderId,
     close,
     successUrl,
+    failUrl,
   }: SubscribePaymentEventsReq) => Promise<SubscribePaymentEventsRes>;
 }
