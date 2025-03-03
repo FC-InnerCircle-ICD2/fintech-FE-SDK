@@ -210,13 +210,17 @@ const PaymentSuccessPage: React.FC = () => {
     // 서버에 결제 검증 요청
     const verifyPayment = async () => {
       try {
-        const response = await fetch('/api/payments/verify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        // Pay200 서버에 대해 결제 승인 API를 호출하도록 가맹점 웹 서비스의 서버에 요청
+        const response = await fetch(
+          'API_TO_YOUR_SERVER_FOR_REQUEST_PAYMENT_CONFIRM_TO_PAY_200_SERVER',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ paymentToken }),
           },
-          body: JSON.stringify({ paymentToken }),
-        });
+        );
 
         const result = await response.json();
 
@@ -250,7 +254,6 @@ const PaymentSuccessPage: React.FC = () => {
           <p>주문명: {paymentResult.orderName}</p>
           <p>결제 금액: {paymentResult.amount.toLocaleString()}원</p>
           <p>주문 번호: {paymentResult.orderId}</p>
-          <p>결제 시간: {new Date(paymentResult.paidAt).toLocaleString()}</p>
         </div>
       )}
       <button onClick={() => navigate('/')}>홈으로 돌아가기</button>
@@ -289,6 +292,46 @@ SDK 초기화 함수입니다.
 | amount     | number | 예   | 결제 금액 (원 단위)                                       |
 | orderName  | string | 예   | 주문명                                                    |
 | successUrl | string | 예   | 결제 성공 후 리다이렉트될 URL (현재 도메인과 동일해야 함) |
+
+#### 반환값
+
+결제 처리 결과를 담은 Promise를 반환합니다.
+
+### requestConfirm(confirmOptions)
+
+Pay200 서버에 결제 승인 요청을 보내는 API입니다.
+
+#### Headers
+
+```
+{
+  headers: {
+    "Authorization": "Basic apiKey",
+    "Content-Type": "application/json",
+  }
+}
+```
+
+```
+curl -X 'POST' \
+  'https://payment.pay-200.com/api/v1/p/merchant/confirm' \
+  -H 'accept: application/json;charset=UTF-8' \
+  -H 'Authorization: Basic cGF5MjAwOg==' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -d '{
+  "orderId": "string",
+  "paymentKey": "string",
+  "amount": 0.01
+}'
+```
+
+#### 매개변수
+
+| 이름      | 타입   | 필수 | 설명                |
+| --------- | ------ | ---- | ------------------- |
+| orderId   | string | 예   | 주문 ID (고유값)    |
+| amount    | number | 예   | 결제 금액 (원 단위) |
+| orderName | string | 예   | 주문명              |
 
 #### 반환값
 
