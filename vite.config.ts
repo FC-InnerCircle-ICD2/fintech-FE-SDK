@@ -21,7 +21,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/app/sdk/index.ts'),
       name: 'pay200SDK',
       fileName: (format) => `index.${format}.js`,
-      formats: ['cjs', 'es', 'umd'],
+      formats: ['es', 'umd'],
     },
     rollupOptions: {
       external: [],
