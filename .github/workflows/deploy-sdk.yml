@@ -1,4 +1,4 @@
-name: Deploy SDK to AWS
+name: Deploy SDK to NPM and AWS
 
 on:
   push:
@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -28,6 +29,14 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+      - name: Update package version
+        run: npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -38,45 +47,25 @@ jobs:
       - name: Deploy to S3
         run: |
           # 각 파일 형식별로 S3에 업로드
-          aws s3 cp dist/index.cjs.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.cjs.js
-          aws s3 cp dist/index.cjs.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.cjs.js.map
           aws s3 cp dist/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js
-          aws s3 cp dist/index.es.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js.map
           aws s3 cp dist/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js
-          aws s3 cp dist/index.umd.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js.map
           aws s3 cp dist/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.d.ts
 
           # 최신 버전으로도 배포 (latest)
-          aws s3 cp dist/index.cjs.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.cjs.js
-          aws s3 cp dist/index.cjs.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.cjs.js.map
           aws s3 cp dist/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js
-          aws s3 cp dist/index.es.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js.map
           aws s3 cp dist/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js
-          aws s3 cp dist/index.umd.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js.map
           aws s3 cp dist/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.d.ts
 
       - name: Set proper content types
         run: |
           # JavaScript 파일에 적절한 Content-Type 설정
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.cjs.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.cjs.js --content-type "application/javascript" --metadata-directive REPLACE
           aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js --content-type "application/javascript" --metadata-directive REPLACE
           aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js --content-type "application/javascript" --metadata-directive REPLACE
-
-          # Map 파일에 적절한 Content-Type 설정
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.cjs.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.cjs.js.map --content-type "application/json" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js.map --content-type "application/json" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js.map --content-type "application/json" --metadata-directive REPLACE
-
-          # TypeScript 정의 파일에 적절한 Content-Type 설정
           aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.d.ts --content-type "application/typescript" --metadata-directive REPLACE
 
           # latest 버전도 동일하게 Content-Type 설정
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.cjs.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.cjs.js --content-type "application/javascript" --metadata-directive REPLACE
           aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js --content-type "application/javascript" --metadata-directive REPLACE
           aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js --content-type "application/javascript" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.cjs.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.cjs.js.map --content-type "application/json" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js.map --content-type "application/json" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js.map s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js.map --content-type "application/json" --metadata-directive REPLACE
           aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.d.ts --content-type "application/typescript" --metadata-directive REPLACE
 
       - name: Create CloudFront invalidation
