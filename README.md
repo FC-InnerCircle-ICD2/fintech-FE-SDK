@@ -11,10 +11,10 @@ Pay200 SDK는 AWS S3에 업로드되고 CloudFront를 통해 배포되어 있어
 ```html
 <!-- UMD 형식 (브라우저에서 바로 사용 가능) -->
 <!-- 최신 버전 사용 -->
-<script src="https://cdn.pay200.com/sdk/latest/index.umd.js"></script>
+<script src="https://cdn.pay-200.com/sdk/latest/index.umd.js"></script>
 
 <!-- 특정 버전 사용 (권장) -->
-<script src="https://cdn.pay200.com/sdk/v1.0.0/index.umd.js"></script>
+<script src="https://cdn.pay-200.com/sdk/v1.0.0/index.umd.js"></script>
 ```
 
 ### ES 모듈 형식 (ESM)
@@ -22,7 +22,7 @@ Pay200 SDK는 AWS S3에 업로드되고 CloudFront를 통해 배포되어 있어
 ```html
 <!-- ES 모듈 형식 (import 구문 사용) -->
 <script type="module">
-  import { Pay200 } from 'https://cdn.pay200.com/sdk/latest/index.es.js';
+  import { Pay200 } from 'https://cdn.pay-200.com/sdk/latest/index.es.js';
 
   // SDK 사용
   const pay200 = new Pay200();
@@ -47,10 +47,10 @@ Pay200 SDK는 TypeScript 정의 파일을 제공합니다. CDN을 통해 TypeScr
 
 ```typescript
 // TypeScript 정의 파일 참조
-/// <reference path="https://cdn.pay200.com/sdk/latest/index.d.ts" />
+/// <reference path="https://cdn.pay-200.com/sdk/latest/index.d.ts" />
 
 // 또는 직접 import
-import type { Pay200Options } from 'https://cdn.pay200.com/sdk/latest/index.d.ts';
+import type { Pay200Options } from 'https://cdn.pay-200.com/sdk/latest/index.d.ts';
 ```
 
 ## 기본 사용법
@@ -65,7 +65,7 @@ import type { Pay200Options } from 'https://cdn.pay200.com/sdk/latest/index.d.ts
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pay200 SDK 예제</title>
     <!-- Pay200 SDK 스크립트 추가 -->
-    <script src="https://cdn.pay200.com/sdk/v1.0.0/pay200-sdk.js"></script>
+    <script src="https://cdn.pay-200.com/sdk/v1.0.0/pay200-sdk.js"></script>
   </head>
   <body>
     <button id="pay-button">결제하기</button>
@@ -448,13 +448,13 @@ Pay200 SDK는 AWS S3에 업로드되고 CloudFront를 통해 배포됩니다. �
 
 ```html
 <!-- 최신 버전 (자동 업데이트, 주의 필요) -->
-<script src="https://cdn.pay200.com/sdk/latest/pay200-sdk.js"></script>
+<script src="https://cdn.pay-200.com/sdk/latest/pay200-sdk.js"></script>
 
 <!-- 메이저 버전 (1.x.x 중 최신 버전) -->
-<script src="https://cdn.pay200.com/sdk/v1/pay200-sdk.js"></script>
+<script src="https://cdn.pay-200.com/sdk/v1/pay200-sdk.js"></script>
 
 <!-- 특정 버전 (권장) -->
-<script src="https://cdn.pay200.com/sdk/v1.0.0/pay200-sdk.js"></script>
+<script src="https://cdn.pay-200.com/sdk/v1.0.0/pay200-sdk.js"></script>
 ```
 
 ### 버전 정책
