@@ -30,10 +30,15 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Update package version
-        run: npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version
+        run: |
+          echo "📦 Updating package version to ${{ steps.get_version.outputs.VERSION }}"
+          npm version ${{ steps.get_version.outputs.VERSION }} --no-git-tag-version
 
       - name: Publish to NPM
-        run: npm publish --access public
+        run: |
+          echo "🚀 Publishing to NPM..."
+          npm publish --access public
+          echo "✅ Successfully published to NPM"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -44,32 +49,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to S3
+      - name: Deploy files to S3
         run: |
-          # 각 파일 형식별로 S3에 업로드
-          aws s3 cp dist/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js
-          aws s3 cp dist/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js
-          aws s3 cp dist/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.d.ts
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          echo "📤 Deploying files to S3 (v$VERSION and latest)"
 
-          # 최신 버전으로도 배포 (latest)
-          aws s3 cp dist/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js
-          aws s3 cp dist/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js
-          aws s3 cp dist/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.d.ts
+          echo "📄 Uploading JavaScript files..."
+          for file in dist/*.es.js dist/*.umd.js; do
+            echo "  - Uploading $(basename $file)..."
+            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v$VERSION/$(basename $file)" --content-type "application/javascript"
+            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/$(basename $file)" --content-type "application/javascript"
+          done
 
-      - name: Set proper content types
-        run: |
-          # JavaScript 파일에 적절한 Content-Type 설정
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.es.js --content-type "application/javascript" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.umd.js --content-type "application/javascript" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v${{ steps.get_version.outputs.VERSION }}/index.d.ts --content-type "application/typescript" --metadata-directive REPLACE
-
-          # latest 버전도 동일하게 Content-Type 설정
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.es.js --content-type "application/javascript" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.umd.js --content-type "application/javascript" --metadata-directive REPLACE
-          aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.d.ts s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/index.d.ts --content-type "application/typescript" --metadata-directive REPLACE
+          echo "📄 Uploading TypeScript files..."
+          for file in dist/*.d.ts; do
+            echo "  - Uploading $(basename $file)..."
+            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET_NAME }}/sdk/v$VERSION/$(basename $file)" --content-type "application/typescript"
+            aws s3 cp "$file" "s3://${{ secrets.S3_BUCKET_NAME }}/sdk/latest/$(basename $file)" --content-type "application/typescript"
+          done
+          echo "✅ S3 deployment completed"
 
       - name: Create CloudFront invalidation
         run: |
+          echo "🔄 Creating CloudFront invalidation..."
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --distribution-id ${{ secrets.CLOUD_FRONT_ID }} \
             --paths "/sdk/v${{ steps.get_version.outputs.VERSION }}/*" "/sdk/latest/*"
+          echo "✅ CloudFront invalidation completed"
